@@ -1,0 +1,28 @@
+{
+  "Client": [
+    "ClientID",
+    "ClientName",
+    "PriorityLevel",
+    "RequestedTaskIDs",
+    "GroupTag",
+    "AttributesJSON"
+  ],
+  "Worker": [
+    "WorkerID",
+    "WorkerName",
+    "Skills",
+    "AvailableSlots",
+    "MaxLoadPerPhase",
+    "WorkerGroup",
+    "QualificationLevel"
+  ],
+  "Task": [
+    "TaskID",
+    "TaskName",
+    "Category",
+    "Duration",
+    "RequiredSkills",
+    "PreferredPhases",
+    "MaxConcurrent"
+  ]
+}
