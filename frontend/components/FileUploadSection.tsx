@@ -17,7 +17,7 @@ import {
   sampleWorkersCSV,
   sampleTasksCSV,
 } from "@/lib/sample-data";
-import type { ProcessedData } from "@/lib/types";
+import type { ProcessedData } from "@/lib/sample-data";
 
 interface FileStatus {
   name: string;

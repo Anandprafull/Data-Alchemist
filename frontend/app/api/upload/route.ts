@@ -1,7 +1,7 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { DataValidator } from "@/lib/data-validator"
 import { AdvancedValidator } from "@/lib/advanced-validator"
-import type { ProcessedData } from "@/lib/types"
+import type { ProcessedData } from "@/lib/sample-data"
 
 export async function POST(request: NextRequest) {
   try {

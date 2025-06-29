@@ -11,7 +11,7 @@ import RuleBuilderSection from "@/components/RuleBuilderSection";
 import PrioritizationSection from "@/components/PrioritizationSection";
 import ExportSection from "@/components/ExportSection";
 import DataModificationSection from "@/components/DataModificationSection";
-import type { ProcessedData } from "@/lib/types";
+import type { ProcessedData } from "@/lib/sample-data";
 
 export type ActiveSection =
   | "upload"

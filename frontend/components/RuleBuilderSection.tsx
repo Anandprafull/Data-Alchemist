@@ -53,7 +53,7 @@ import type {
   SlotRestriction,
   LoadLimit,
   PhaseWindow,
-} from "@/lib/types";
+} from "@/lib/sample-data";
 
 interface RuleBuilderSectionProps {
   data?: ProcessedData | null;

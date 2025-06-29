@@ -12,7 +12,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import type { ActiveSection } from "@/app/dashboard/page";
-import type { ValidationError } from "@/lib/types";
+import type { ValidationError } from "@/lib/sample-data";
 
 interface SidebarProps {
   activeSection: ActiveSection;

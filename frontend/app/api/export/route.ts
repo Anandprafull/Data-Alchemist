@@ -1,5 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server"
-import type { ClientData, WorkerData, TaskData, RuleConfig } from "@/lib/types"
+import type { ClientData, WorkerData, TaskData, RuleConfig } from "@/lib/sample-data"
 
 export async function POST(request: NextRequest) {
   try {
