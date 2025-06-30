@@ -101,7 +101,7 @@ export default function FileUploadSection({
       formData.append("workers", workersFile);
       formData.append("tasks", tasksFile);
 
-      const response = await fetch("http://localhost:8000/upload", {
+      const response = await fetch("https://data-alchemist-p7gh.onrender.com/upload", {
         method: "POST",
         body: formData,
       });
@@ -186,7 +186,7 @@ export default function FileUploadSection({
     setIsProcessing(true);
 
     try {
-      const response = await fetch("http://localhost:8000/upload", {
+      const response = await fetch("https://data-alchemist-p7gh.onrender.com/upload", {
         method: "POST",
         body: formData,
       });

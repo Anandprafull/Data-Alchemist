@@ -86,7 +86,7 @@ export default function ExportSection({ data }: ExportSectionProps) {
       } else {
         // Fallback to old download method if no content provided
         const response = await fetch(
-          `http://localhost:8000/download/${filename}`
+          `https://data-alchemist-p7gh.onrender.com/download/${filename}`
         );
         if (response.ok) {
           const blob = await response.blob();
@@ -113,7 +113,7 @@ export default function ExportSection({ data }: ExportSectionProps) {
 
     setIsExporting(true);
     try {
-      const response = await fetch("http://localhost:8000/export_download", {
+      const response = await fetch("https://data-alchemist-p7gh.onrender.com/export_download", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });

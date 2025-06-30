@@ -14,7 +14,7 @@ export default function TestPage() {
 
     // Test 1: Basic connection to FastAPI
     try {
-      const response = await fetch("http://localhost:8000/docs");
+      const response = await fetch("https://data-alchemist-p7gh.onrender.com/docs");
       results.push({
         test: "FastAPI Docs Access",
         status: response.ok ? "✅ SUCCESS" : "❌ FAILED",
@@ -35,7 +35,7 @@ export default function TestPage() {
       const formData = new FormData();
       formData.append("query", "test query");
 
-      const response = await fetch("http://localhost:8000/nl_search", {
+      const response = await fetch("https://data-alchemist-p7gh.onrender.com/nl_search", {
         method: "POST",
         body: formData,
       });
@@ -59,7 +59,7 @@ export default function TestPage() {
     // Test 3: AI Rule Recommendations endpoint
     try {
       const response = await fetch(
-        "http://localhost:8000/ai_rule_recommendations",
+        "https://data-alchemist-p7gh.onrender.com/ai_rule_recommendations",
         {
           method: "GET",
         }
@@ -84,7 +84,7 @@ export default function TestPage() {
     // Test 4: Suggest Corrections endpoint
     try {
       const response = await fetch(
-        "http://localhost:8000/suggest_corrections",
+        "https://data-alchemist-p7gh.onrender.com/suggest_corrections",
         {
           method: "GET",
         }
@@ -158,7 +158,7 @@ export default function TestPage() {
           <ol className="list-decimal list-inside space-y-2 text-sm">
             <li>
               Make sure your FastAPI server is running at{" "}
-              <code>http://localhost:8000</code>
+              <code>https://data-alchemist-p7gh.onrender.com</code>
             </li>
             <li>Click the "Test Backend Connection" button above</li>
             <li>Check the results to see which endpoints are working</li>

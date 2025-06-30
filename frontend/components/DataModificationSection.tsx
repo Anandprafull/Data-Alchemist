@@ -64,7 +64,7 @@ export default function DataModificationSection({
       const formData = new FormData();
       formData.append("command", modificationInstruction);
 
-      const response = await fetch("http://localhost:8000/nl_modify", {
+      const response = await fetch("https://data-alchemist-p7gh.onrender.com/nl_modify", {
         method: "POST",
         body: formData,
       });
@@ -114,7 +114,7 @@ export default function DataModificationSection({
     setIsCorrectingErrors(true);
     try {
       const response = await fetch(
-        "http://localhost:8000/suggest_corrections",
+        "https://data-alchemist-p7gh.onrender.com/suggest_corrections",
         {
           method: "GET",
         }

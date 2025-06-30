@@ -73,7 +73,7 @@ export default function Dashboard() {
       const formData = new FormData();
       formData.append("query", query);
 
-      const response = await fetch("http://localhost:8000/nl_search", {
+      const response = await fetch("https://data-alchemist-p7gh.onrender.com/nl_search", {
         method: "POST",
         body: formData,
       });
@@ -105,7 +105,7 @@ export default function Dashboard() {
     try {
       console.log("� Sending request to /apply_corrections...");
 
-      const response = await fetch("http://localhost:8000/apply_corrections", {
+      const response = await fetch("https://data-alchemist-p7gh.onrender.com/apply_corrections", {
         method: "POST",
       });
 
