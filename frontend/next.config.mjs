@@ -9,6 +9,12 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  // Configure for production deployment
+  output: 'standalone',
+  // Ensure proper port handling
+  experimental: {
+    serverComponentsExternalPackages: []
+  }
 }
 
 export default nextConfig

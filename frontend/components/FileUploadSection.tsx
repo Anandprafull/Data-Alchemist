@@ -17,7 +17,7 @@ import {
   sampleWorkersCSV,
   sampleTasksCSV,
 } from "@/lib/sample-data";
-import type { ProcessedData } from "@/lib/sample-data";
+import type { ProcessedData } from "@/lib/types";
 
 interface FileStatus {
   name: string;
@@ -101,7 +101,7 @@ export default function FileUploadSection({
       formData.append("workers", workersFile);
       formData.append("tasks", tasksFile);
 
-      const response = await fetch("https://data-alchemist-p7gh.onrender.com/upload", {
+      const response = await fetch("http://localhost:8000/upload", {
         method: "POST",
         body: formData,
       });
@@ -186,7 +186,7 @@ export default function FileUploadSection({
     setIsProcessing(true);
 
     try {
-      const response = await fetch("https://data-alchemist-p7gh.onrender.com/upload", {
+      const response = await fetch("http://localhost:8000/upload", {
         method: "POST",
         body: formData,
       });

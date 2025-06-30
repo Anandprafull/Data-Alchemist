@@ -16,7 +16,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "framer-motion";
-import type { ValidationError } from "@/lib/sample-data";
+import type { ValidationError } from "@/lib/types";
 
 interface ValidationPanelProps {
   isOpen: boolean;

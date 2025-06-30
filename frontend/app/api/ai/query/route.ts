@@ -1,6 +1,6 @@
 import { type NextRequest, NextResponse } from "next/server"
 import { AIDataRetrieval } from "@/lib/ai-data-retrieval"
-import type { ProcessedData } from "@/lib/sample-data"
+import type { ProcessedData } from "@/lib/types"
 
 export async function POST(request: NextRequest) {
   try {

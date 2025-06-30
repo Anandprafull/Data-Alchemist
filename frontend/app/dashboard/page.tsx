@@ -11,7 +11,7 @@ import RuleBuilderSection from "@/components/RuleBuilderSection";
 import PrioritizationSection from "@/components/PrioritizationSection";
 import ExportSection from "@/components/ExportSection";
 import DataModificationSection from "@/components/DataModificationSection";
-import type { ProcessedData } from "@/lib/sample-data";
+import type { ProcessedData } from "@/lib/types";
 
 export type ActiveSection =
   | "upload"
@@ -73,7 +73,7 @@ export default function Dashboard() {
       const formData = new FormData();
       formData.append("query", query);
 
-      const response = await fetch("https://data-alchemist-p7gh.onrender.com/nl_search", {
+      const response = await fetch("http://localhost:8000/nl_search", {
         method: "POST",
         body: formData,
       });
@@ -105,7 +105,7 @@ export default function Dashboard() {
     try {
       console.log("� Sending request to /apply_corrections...");
 
-      const response = await fetch("https://data-alchemist-p7gh.onrender.com/apply_corrections", {
+      const response = await fetch("http://localhost:8000/apply_corrections", {
         method: "POST",
       });
 

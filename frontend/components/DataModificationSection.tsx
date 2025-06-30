@@ -32,7 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import type { ProcessedData } from "@/lib/sample-data";
+import type { ProcessedData } from "@/lib/types";
 
 interface DataModificationSectionProps {
   data?: ProcessedData | null;
@@ -64,7 +64,7 @@ export default function DataModificationSection({
       const formData = new FormData();
       formData.append("command", modificationInstruction);
 
-      const response = await fetch("https://data-alchemist-p7gh.onrender.com/nl_modify", {
+      const response = await fetch("http://localhost:8000/nl_modify", {
         method: "POST",
         body: formData,
       });
@@ -114,7 +114,7 @@ export default function DataModificationSection({
     setIsCorrectingErrors(true);
     try {
       const response = await fetch(
-        "https://data-alchemist-p7gh.onrender.com/suggest_corrections",
+        "http://localhost:8000/suggest_corrections",
         {
           method: "GET",
         }

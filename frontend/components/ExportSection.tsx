@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import type { ProcessedData } from "@/lib/sample-data";
+import type { ProcessedData } from "@/lib/types";
 
 interface ExportSectionProps {
   data?: ProcessedData | null;
@@ -86,7 +86,7 @@ export default function ExportSection({ data }: ExportSectionProps) {
       } else {
         // Fallback to old download method if no content provided
         const response = await fetch(
-          `https://data-alchemist-p7gh.onrender.com/download/${filename}`
+          `http://localhost:8000/download/${filename}`
         );
         if (response.ok) {
           const blob = await response.blob();
@@ -113,7 +113,7 @@ export default function ExportSection({ data }: ExportSectionProps) {
 
     setIsExporting(true);
     try {
-      const response = await fetch("https://data-alchemist-p7gh.onrender.com/export_download", {
+      const response = await fetch("http://localhost:8000/export_download", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       });

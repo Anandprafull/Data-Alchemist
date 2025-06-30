@@ -53,7 +53,7 @@ import type {
   SlotRestriction,
   LoadLimit,
   PhaseWindow,
-} from "@/lib/sample-data";
+} from "@/lib/types";
 
 interface RuleBuilderSectionProps {
   data?: ProcessedData | null;
@@ -190,7 +190,7 @@ export default function RuleBuilderSection({
     setIsLoadingRecommendations(true);
     try {
       const response = await fetch(
-        "https://data-alchemist-p7gh.onrender.com/ai_rule_recommendations",
+        "http://localhost:8000/ai_rule_recommendations",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -239,7 +239,7 @@ export default function RuleBuilderSection({
     setIsGeneratingRule(true);
 
     try {
-      const response = await fetch("https://data-alchemist-p7gh.onrender.com/ai_generate_rule", {
+      const response = await fetch("http://localhost:8000/ai_generate_rule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -515,7 +515,7 @@ export default function RuleBuilderSection({
         return;
       }
 
-      const response = await fetch("https://data-alchemist-p7gh.onrender.com/apply_rules", {
+      const response = await fetch("http://localhost:8000/apply_rules", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ rules: allRules }),

@@ -51,7 +51,7 @@ import type {
   WorkerData,
   TaskData,
   ValidationError,
-} from "@/lib/sample-data";
+} from "@/lib/types";
 
 interface DataGridsSectionProps {
   data?: ProcessedData | null;

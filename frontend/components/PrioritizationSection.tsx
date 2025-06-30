@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { motion } from "framer-motion"
-import type { ProcessedData } from "@/lib/sample-data"
+import type { ProcessedData } from "@/lib/types"
 
 interface PrioritizationSectionProps {
   data?: ProcessedData | null

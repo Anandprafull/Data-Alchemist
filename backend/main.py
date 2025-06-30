@@ -513,3 +513,13 @@ async def apply_rules(request: dict):
         import traceback
         traceback.print_exc()
         return JSONResponse(status_code=500, content={"status": "error", "message": str(e)})
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+    
+    # Get port from environment variable (Google Cloud Run uses PORT)
+    port = int(os.environ.get("PORT", 8080))
+    
+    print(f"Starting server on port {port}")
+    uvicorn.run(app, host="0.0.0.0", port=port)
