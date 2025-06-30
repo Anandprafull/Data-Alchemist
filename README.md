@@ -28,6 +28,8 @@
 - **🚀 Frontend Application**: [alchemistai.netlify.app](https://alchemistai.netlify.app/)
 - **⚙️ Backend API**: [data-alchemist-p7gh.onrender.com](https://data-alchemist-p7gh.onrender.com)
 
+Backend has compute limit on render so is not doing the processing part as of now, looking for alternative backend deployment.
+The demo video includes all the functions.
 ---
 
 ## 📖 The Story
