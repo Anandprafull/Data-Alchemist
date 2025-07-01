@@ -32,6 +32,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getApiUrl } from "@/lib/config";
 import type { ProcessedData } from "@/lib/types";
 
 interface DataModificationSectionProps {
@@ -64,13 +65,10 @@ export default function DataModificationSection({
       const formData = new FormData();
       formData.append("command", modificationInstruction);
 
-      const response = await fetch(
-        "https://data-alchemist-production.up.railway.app//nl_modify",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(getApiUrl('NATURAL_LANGUAGE_MODIFY'), {
+        method: "POST",
+        body: formData,
+      });
 
       const result = await response.json();
 
@@ -117,7 +115,7 @@ export default function DataModificationSection({
     setIsCorrectingErrors(true);
     try {
       const response = await fetch(
-        "https://data-alchemist-production.up.railway.app//suggest_corrections",
+        getApiUrl('SUGGEST_CORRECTIONS'),
         {
           method: "GET",
         }
@@ -259,22 +257,23 @@ export default function DataModificationSection({
                     <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center">
                       <MessageSquare className="h-4 w-4 text-background" />
                     </div>
-                    <span>Natural Language Data Modification</span>
+                    <span>
+                      Natural Language Data Modification
+                    </span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
                     <Label className="text-sm font-medium">
                       What would you like to modify?
-                    </Label>{" "}
-                    <Textarea
-                      placeholder="e.g., 'Update all high priority clients to have priority level 5' or 'Remove workers without any skills' or 'Standardize all email addresses to lowercase'"
-                      value={modificationInstruction}
-                      onChange={(e) =>
-                        setModificationInstruction(e.target.value)
-                      }
-                      className="mt-2 min-h-[100px]"
-                    />
+                    </Label>                      <Textarea
+                        placeholder="e.g., 'Update all high priority clients to have priority level 5' or 'Remove workers without any skills' or 'Standardize all email addresses to lowercase'"
+                        value={modificationInstruction}
+                        onChange={(e) =>
+                          setModificationInstruction(e.target.value)
+                        }
+                        className="mt-2 min-h-[100px]"
+                      />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
@@ -296,15 +295,13 @@ export default function DataModificationSection({
                       </Select>
                     </div>
 
-                    <div className="flex items-end">
-                      {" "}
-                      <Button
-                        onClick={handleNaturalLanguageModification}
-                        disabled={
-                          isProcessing || !modificationInstruction.trim()
-                        }
-                        className="w-full"
-                      >
+                    <div className="flex items-end">                        <Button
+                          onClick={handleNaturalLanguageModification}
+                          disabled={
+                            isProcessing || !modificationInstruction.trim()
+                          }
+                          className="w-full"
+                        >
                         {isProcessing ? (
                           <>
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -335,7 +332,9 @@ export default function DataModificationSection({
                     <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center">
                       <Eye className="h-4 w-4 text-background" />
                     </div>
-                    <span>Modification Preview</span>
+                    <span>
+                      Modification Preview
+                    </span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -408,8 +407,12 @@ export default function DataModificationSection({
                   <div className="h-8 w-8 rounded-lg bg-destructive flex items-center justify-center">
                     <Shield className="h-4 w-4 text-destructive-foreground" />
                   </div>
-                  <span>Automatic Error Correction</span>
-                  <Badge variant="destructive">{errorCount} Errors Found</Badge>
+                  <span>
+                    Automatic Error Correction
+                  </span>
+                  <Badge variant="destructive">
+                    {errorCount} Errors Found
+                  </Badge>
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -519,7 +522,9 @@ export default function DataModificationSection({
                   <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center">
                     <Save className="h-4 w-4 text-background" />
                   </div>
-                  <span>Modification History</span>
+                  <span>
+                    Modification History
+                  </span>
                   <Badge variant="secondary">
                     {modificationHistory.length} Changes
                   </Badge>
@@ -540,7 +545,10 @@ export default function DataModificationSection({
                   <ScrollArea className="h-[400px] w-full">
                     <div className="space-y-4">
                       {modificationHistory.map((mod, index) => (
-                        <div key={mod.id} className="p-4 border rounded-lg">
+                        <div
+                          key={mod.id}
+                          className="p-4 border rounded-lg"
+                        >
                           <div className="flex items-center justify-between mb-2">
                             <Badge variant="secondary">
                               #{modificationHistory.length - index}

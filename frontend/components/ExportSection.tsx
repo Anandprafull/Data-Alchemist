@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import { getApiUrl, getFullApiUrl } from "@/lib/config";
 import type { ProcessedData } from "@/lib/types";
 
 interface ExportSectionProps {
@@ -86,7 +87,7 @@ export default function ExportSection({ data }: ExportSectionProps) {
       } else {
         // Fallback to old download method if no content provided
         const response = await fetch(
-          `https://data-alchemist-production.up.railway.app//download/${filename}`
+          getFullApiUrl(`/download/${filename}`)
         );
         if (response.ok) {
           const blob = await response.blob();
@@ -113,13 +114,10 @@ export default function ExportSection({ data }: ExportSectionProps) {
 
     setIsExporting(true);
     try {
-      const response = await fetch(
-        "https://data-alchemist-production.up.railway.app//export_download",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
+      const response = await fetch(getApiUrl('EXPORT_DOWNLOAD'), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
 
       const result = await response.json();
 
@@ -210,7 +208,9 @@ export default function ExportSection({ data }: ExportSectionProps) {
                   <Download className="h-6 w-6 text-background" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-semibold">Export Data</h2>
+                  <h2 className="text-2xl font-semibold">
+                    Export Data
+                  </h2>
                   <p className="text-muted-foreground">
                     Download your cleaned data directly to your browser
                   </p>
@@ -235,7 +235,9 @@ export default function ExportSection({ data }: ExportSectionProps) {
                 <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center">
                   <Package className="h-4 w-4 text-background" />
                 </div>
-                <span>Export Format</span>
+                <span>
+                  Export Format
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -293,7 +295,9 @@ export default function ExportSection({ data }: ExportSectionProps) {
                 <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center">
                   <Settings className="h-4 w-4 text-background" />
                 </div>
-                <span>Export Options</span>
+                <span>
+                  Export Options
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -368,7 +372,9 @@ export default function ExportSection({ data }: ExportSectionProps) {
                 <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center">
                   <FileText className="h-4 w-4 text-background" />
                 </div>
-                <span>Export Summary</span>
+                <span>
+                  Export Summary
+                </span>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { getApiUrl } from "@/lib/config";
 
 export default function TestPage() {
   const [testResults, setTestResults] = useState<any[]>([]);
@@ -14,9 +15,7 @@ export default function TestPage() {
 
     // Test 1: Basic connection to FastAPI
     try {
-      const response = await fetch(
-        "https://data-alchemist-production.up.railway.app//docs"
-      );
+      const response = await fetch(getApiUrl('DOCS'));
       results.push({
         test: "FastAPI Docs Access",
         status: response.ok ? "✅ SUCCESS" : "❌ FAILED",
@@ -37,13 +36,10 @@ export default function TestPage() {
       const formData = new FormData();
       formData.append("query", "test query");
 
-      const response = await fetch(
-        "https://data-alchemist-production.up.railway.app//nl_search",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(getApiUrl('NATURAL_LANGUAGE_SEARCH'), {
+        method: "POST",
+        body: formData,
+      });
 
       const result = await response.json();
       results.push({
@@ -64,7 +60,7 @@ export default function TestPage() {
     // Test 3: AI Rule Recommendations endpoint
     try {
       const response = await fetch(
-        "https://data-alchemist-production.up.railway.app//ai_rule_recommendations",
+        getApiUrl('AI_RULE_RECOMMENDATIONS'),
         {
           method: "GET",
         }
@@ -89,7 +85,7 @@ export default function TestPage() {
     // Test 4: Suggest Corrections endpoint
     try {
       const response = await fetch(
-        "https://data-alchemist-production.up.railway.app//suggest_corrections",
+        getApiUrl('SUGGEST_CORRECTIONS'),
         {
           method: "GET",
         }
@@ -163,7 +159,7 @@ export default function TestPage() {
           <ol className="list-decimal list-inside space-y-2 text-sm">
             <li>
               Make sure your FastAPI server is running at{" "}
-              <code>https://data-alchemist-production.up.railway.app/</code>
+              <code>https://data-alchemist-production.up.railway.app</code>
             </li>
             <li>Click the "Test Backend Connection" button above</li>
             <li>Check the results to see which endpoints are working</li>

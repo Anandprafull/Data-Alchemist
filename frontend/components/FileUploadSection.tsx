@@ -17,6 +17,7 @@ import {
   sampleWorkersCSV,
   sampleTasksCSV,
 } from "@/lib/sample-data";
+import { getApiUrl } from "@/lib/config";
 import type { ProcessedData } from "@/lib/types";
 
 interface FileStatus {
@@ -101,13 +102,10 @@ export default function FileUploadSection({
       formData.append("workers", workersFile);
       formData.append("tasks", tasksFile);
 
-      const response = await fetch(
-        "https://data-alchemist-production.up.railway.app//upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(getApiUrl('UPLOAD'), {
+        method: "POST",
+        body: formData,
+      });
 
       const result = await response.json();
 
@@ -189,13 +187,10 @@ export default function FileUploadSection({
     setIsProcessing(true);
 
     try {
-      const response = await fetch(
-        "https://data-alchemist-production.up.railway.app//upload",
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
+      const response = await fetch(getApiUrl('UPLOAD'), {
+        method: "POST",
+        body: formData,
+      });
 
       const result = await response.json();
 

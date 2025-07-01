@@ -1,8 +1,8 @@
-[build]
-builder = "dockerfile"
-dockerfilePath = "backend/Dockerfile"
+[phases.setup]
+nixPkgs = ["python310"]  # Use your required version here
 
-[deploy]
-healthcheckPath = "/health"
-healthcheckTimeout = 300
-restartPolicyType = "on_failure"
+[phases.install]
+cmds = ["pip install -r backend/requirements.txt"]
+
+[start]
+cmd = "uvicorn main:app --host 0.0.0.0 --port 6009"

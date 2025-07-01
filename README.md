@@ -13,7 +13,7 @@
 
 [![🎬 Watch Demo](https://img.shields.io/badge/🎬%20Watch%20Demo-YouTube-red?style=for-the-badge)](https://www.youtube.com/watch?v=USbGn_R0Jq0)
 [![🚀 Live App](https://img.shields.io/badge/🚀%20Live%20App-Netlify-00C7B7?style=for-the-badge)](https://alchemistai.netlify.app/)
-[![⚙️ Backend API](https://img.shields.io/badge/⚙️%20Backend%20API-Render-46E3B7?style=for-the-badge)](https://data-alchemist-p7gh.onrender.com)
+[![⚙️ Backend API](https://img.shields.io/badge/⚙️%20Backend%20API-Railway-00C7B7?style=for-the-badge)](https://data-alchemist-production.up.railway.app)
 
 </div>
 
@@ -26,9 +26,8 @@
 ## 🌐 Try It Live
 
 - **🚀 Frontend Application**: [alchemistai.netlify.app](https://alchemistai.netlify.app/)
-- **⚙️ Backend API**: [data-alchemist-p7gh.onrender.com](https://data-alchemist-p7gh.onrender.com)
+- **⚙️ Backend API**: [data-alchemist-production.up.railway.app](https://data-alchemist-production.up.railway.app)
 
-Backend has compute limit on render so is not doing the processing part as of now, looking for alternative backend deployment.
 The demo video includes all the functions.
 ---
 
@@ -100,7 +99,7 @@ graph TB
         B3[TypeScript Logic]
     end
     
-    subgraph "Backend - data-alchemist-p7gh.onrender.com"
+    subgraph "Backend - data-alchemist-production.up.railway.app"
         C1[API Endpoints]
         C2[Data Validation]
         C3[AI Services]
@@ -313,7 +312,7 @@ The exported files are optimized for:
 
 ### ✅ Milestone 3: Deployment
 - ✅ Frontend Deployment (Netlify)
-- ✅ Backend API Deployment (Render)
+- ✅ Backend API Deployment (Railway)
 - ✅ Demo Video Production
 - ✅ Live Application Testing
 
@@ -340,7 +339,7 @@ The exported files are optimized for:
 
 ### Deployment Configuration
 - **Frontend**: Deployed on Netlify with automatic builds
-- **Backend**: Deployed on Render with API endpoints
+- **Backend**: Deployed on Railway with API endpoints
 - **Domain**: Custom domain setup for production use
 
 ### Next.js Configuration

@@ -1,10 +1,6 @@
-fastapi
-uvicorn[standard]
-python-multipart
-pandas
-sentence-transformers
-faiss-cpu
-azure-ai-inference
-python-dotenv
-numpy
-requests
+pandas==2.1.4
+azure-ai-inference==1.0.0b1
+python-dotenv==1.0.0
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
