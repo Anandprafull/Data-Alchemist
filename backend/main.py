@@ -6,9 +6,17 @@ import pandas as pd
 import os
 import math
 import json
+import traceback
 from backend import DataManager
 
 app = FastAPI()
+
+# Health check endpoint for Cloud Run
+@app.get("/")
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for Google Cloud Run"""
+    return {"status": "healthy", "service": "data-alchemist-backend", "port": os.environ.get("PORT", 8080)}
 
 # Enable CORS for frontend communication
 app.add_middleware(
@@ -520,6 +528,22 @@ if __name__ == "__main__":
     
     # Get port from environment variable (Google Cloud Run uses PORT)
     port = int(os.environ.get("PORT", 8080))
+    host = "0.0.0.0"
     
-    print(f"Starting server on port {port}")
-    uvicorn.run(app, host="0.0.0.0", port=port)
+    print(f"🚀 Starting FastAPI server...")
+    print(f"📍 Host: {host}")
+    print(f"🔌 Port: {port}")
+    print(f"🌐 Environment: {os.environ.get('NODE_ENV', 'development')}")
+    
+    try:
+        uvicorn.run(
+            app, 
+            host=host, 
+            port=port,
+            # Add these configurations for production deployment
+            access_log=True,
+            log_level="info"
+        )
+    except Exception as e:
+        print(f"❌ Failed to start server: {e}")
+        raise

@@ -5,3 +5,6 @@ pandas
 sentence-transformers
 faiss-cpu
 azure-ai-inference
+python-dotenv
+numpy
+requests

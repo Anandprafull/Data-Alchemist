@@ -190,7 +190,7 @@ export default function RuleBuilderSection({
     setIsLoadingRecommendations(true);
     try {
       const response = await fetch(
-        "http://localhost:8000/ai_rule_recommendations",
+        "https://data-alchemist-production.up.railway.app//ai_rule_recommendations",
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -239,13 +239,16 @@ export default function RuleBuilderSection({
     setIsGeneratingRule(true);
 
     try {
-      const response = await fetch("http://localhost:8000/ai_generate_rule", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          input: naturalLanguageInput,
-        }),
-      });
+      const response = await fetch(
+        "https://data-alchemist-production.up.railway.app//ai_generate_rule",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            input: naturalLanguageInput,
+          }),
+        }
+      );
 
       console.log("Response status:", response.status);
       const result = await response.json();
@@ -515,11 +518,14 @@ export default function RuleBuilderSection({
         return;
       }
 
-      const response = await fetch("http://localhost:8000/apply_rules", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ rules: allRules }),
-      });
+      const response = await fetch(
+        "https://data-alchemist-production.up.railway.app//apply_rules",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ rules: allRules }),
+        }
+      );
 
       console.log("Apply rules response status:", response.status);
       const result = await response.json();
@@ -796,9 +802,7 @@ export default function RuleBuilderSection({
                   <Settings className="h-6 w-6 text-background" />
                 </div>
                 <div>
-                  <h2 className="text-2xl font-bold">
-                    Rule Builder
-                  </h2>
+                  <h2 className="text-2xl font-bold">Rule Builder</h2>
                   <p className="text-muted-foreground">
                     Create custom rules for resource allocation
                   </p>
@@ -809,10 +813,7 @@ export default function RuleBuilderSection({
                   <Target className="h-3 w-3 mr-1" />
                   {totalRules} Rules
                 </Badge>
-                <Button
-                  onClick={exportRules}
-                  disabled={totalRules === 0}
-                >
+                <Button onClick={exportRules} disabled={totalRules === 0}>
                   <Download className="h-4 w-4 mr-2" />
                   Export Rules
                 </Button>
@@ -834,9 +835,7 @@ export default function RuleBuilderSection({
               <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center">
                 <Sparkles className="h-4 w-4 text-background" />
               </div>
-              <span>
-                AI Rule Generator
-              </span>
+              <span>AI Rule Generator</span>
               <Badge variant="secondary">
                 <Zap className="h-3 w-3 mr-1" />
                 Powered by AI
@@ -975,9 +974,7 @@ export default function RuleBuilderSection({
                 <div className="h-8 w-8 rounded-lg bg-foreground flex items-center justify-center">
                   <Lightbulb className="h-4 w-4 text-background" />
                 </div>
-                <span>
-                  AI Rule Recommendations
-                </span>
+                <span>AI Rule Recommendations</span>
                 <Badge variant="secondary">
                   {recommendations.length} suggestions
                 </Badge>

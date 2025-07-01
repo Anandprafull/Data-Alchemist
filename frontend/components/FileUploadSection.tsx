@@ -101,10 +101,13 @@ export default function FileUploadSection({
       formData.append("workers", workersFile);
       formData.append("tasks", tasksFile);
 
-      const response = await fetch("http://localhost:8000/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://data-alchemist-production.up.railway.app//upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const result = await response.json();
 
@@ -186,10 +189,13 @@ export default function FileUploadSection({
     setIsProcessing(true);
 
     try {
-      const response = await fetch("http://localhost:8000/upload", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://data-alchemist-production.up.railway.app//upload",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const result = await response.json();
 

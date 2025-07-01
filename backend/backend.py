@@ -5,9 +5,6 @@ from typing import List, Dict, Any, Optional
 from azure.ai.inference import ChatCompletionsClient
 from azure.ai.inference.models import SystemMessage, UserMessage
 from azure.core.credentials import AzureKeyCredential
-import faiss
-from sentence_transformers import SentenceTransformer
-import numpy as np
 from dotenv import load_dotenv
 from datetime import datetime
 import time
@@ -28,13 +25,10 @@ class ValidationError:
             "details": self.details,
         }
 
-class FAISSSearcher:
-    def __init__(self, mode="rows"):
-        self.mode = mode
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
-        self.index = None
-        self.entries = []
-
+class AIDataValidator:
+    def __init__(self, gpt_agent=None):
+        self.gpt_agent = gpt_agent
+        
         # Per-entity required columns:
         self.required_columns_client = [
             "ClientID", "ClientName", "PriorityLevel",
@@ -51,25 +45,8 @@ class FAISSSearcher:
             "PreferredPhases", "MaxConcurrent"
         ]
 
-        # Load example entries for indexing
-        if mode == "headers":
-            file = os.path.join("data", "correct_headers.json")
-            with open(file) as f:
-                self.entries = json.load(f)
-        elif mode == "rows":
-            file = os.path.join("data", "sample_rows.json")
-            with open(file) as f:
-                data = json.load(f)
-                self.entries_obj = data
-                # Instead of raw JSON, create a meaningful text for embeddings
-                self.entries = [self._row_to_text(row) for row in data]
-
-        self.embeddings = self.model.encode(self.entries)
-        self.index = faiss.IndexFlatL2(self.embeddings.shape[1])
-        self.index.add(np.array(self.embeddings).astype('float32'))
-
     def _row_to_text(self, row: Dict[str, Any]) -> str:
-        # Create a textual representation of a row for embedding
+        # Create a textual representation of a row for AI processing
         parts = []
         for key in sorted(row.keys()):
             val = row[key]
@@ -136,8 +113,6 @@ class FAISSSearcher:
                         {"id": row["WorkerID"]}
                     ))
                 worker_ids.add(row["WorkerID"])
-            
-
 
             if "TaskID" in row:
                 if row["TaskID"] in task_ids:
@@ -204,12 +179,10 @@ class FAISSSearcher:
                     ))
 
             # f. Track phase durations for saturation checks
-            # Use 'PreferredPhases' if 'Phase' not present (for tasks)
             phases = []
             if "Phase" in row:
                 phases = [row["Phase"]]
             elif "PreferredPhases" in row:
-                # PreferredPhases might be "1-3" or "[2,4,5]"
                 val = row["PreferredPhases"]
                 if isinstance(val, str):
                     try:
@@ -228,11 +201,9 @@ class FAISSSearcher:
                 phase_durations[phase] = phase_durations.get(phase, 0) + row.get("Duration", 0)
 
             # g. Track worker skills & required skills
-            # g. Track worker skills & required skills (fully safe)
             if "WorkerID" in row:
                 skills_raw = row.get("Skills", "")
                 skills_list = []
-            
                 try:
                     if isinstance(skills_raw, str):
                         skills_list = [s.strip() for s in skills_raw.split(",")]
@@ -242,13 +213,11 @@ class FAISSSearcher:
                         skills_list = []
                 except Exception:
                     skills_list = []
-            
                 worker_skills[row["WorkerID"]] = set(skills_list)
             
             if "RequiredSkills" in row:
                 req_raw = row.get("RequiredSkills", "")
                 req_list = []
-            
                 try:
                     if isinstance(req_raw, str):
                         req_list = [s.strip() for s in req_raw.split(",")]
@@ -258,11 +227,8 @@ class FAISSSearcher:
                         req_list = []
                 except Exception:
                     req_list = []
-            
                 for sk in req_list:
                     required_skills.add(sk)
-
-
 
             # h. CoRunGroups for circular dependency (optional, if present)
             if "TaskID" in row and "CoRunGroup" in row:
@@ -388,15 +354,49 @@ class FAISSSearcher:
 
         return errors
 
-    def search(self, query: str, top_k=3):
-        query_vec = self.model.encode([query])
-        D, I = self.index.search(np.array(query_vec).astype('float32'), top_k)
-        results = [self.entries[i] for i in I[0]]
-        if self.mode == "rows":
-            results = [json.loads(r) if isinstance(r, str) else r for r in results]
-        return results
-
-
+    def search(self, query: str, data: List[Dict[str, Any]], top_k=3):
+        """AI-based search functionality"""
+        if not self.gpt_agent or not data:
+            return []
+        
+        # Use AI to search through data
+        prompt = f"""
+        You are a data search assistant. Find the most relevant records from the dataset based on the query.
+        
+        Query: "{query}"
+        
+        Dataset sample (first 10 records):
+        {json.dumps(data[:10], indent=2)}
+        
+        Return the top {top_k} most relevant records as a JSON array.
+        Consider similarity in content, structure, and context.
+        Return only the JSON array, no explanations.
+        """
+        
+        try:
+            result_str = self.gpt_agent.chat_completion(
+                system_prompt="You are a data search AI. Return only valid JSON arrays.",
+                user_prompt=prompt
+            )
+            
+            # Clean and parse response
+            result_str = result_str.strip()
+            if result_str.startswith('```'):
+                lines = result_str.split('\n')
+                result_str = '\n'.join(lines[1:-1])
+            
+            start = result_str.find('[')
+            end = result_str.rfind(']')
+            
+            if start != -1 and end != -1 and end > start:
+                json_str = result_str[start:end+1]
+                results = json.loads(json_str)
+                return results[:top_k] if isinstance(results, list) else []
+            
+            return []
+        except Exception as e:
+            print(f"AI search error: {e}")
+            return []
 
 # --------- GPTAgent Wrapper ---------
 class GPTAgent:
@@ -430,11 +430,7 @@ class GPTAgent:
     
         return response.choices[0].message.content
 
-
-
-
 # --------- Core Functionalities ---------
-
 def natural_language_search(gpt_agent: GPTAgent, data: List[Dict[str, Any]], query: str) -> Dict[str, Any]:
     print(f"=== DEBUG natural_language_search ===")
     print(f"Input data length: {len(data)}")
@@ -567,7 +563,6 @@ Response format: [{{record1}}, {{record2}}, ...]
         print(f"Raw AI response: {repr(result_str)}")
         return {"clients": [], "workers": [], "tasks": []}
 
-
 def natural_language_modify(gpt_agent: GPTAgent, data: List[Dict[str, Any]], command: str) -> Dict[str, Any]:
     # Prompt GPT to suggest modifications based on user command
     prompt = f"""
@@ -590,7 +585,6 @@ Return only JSON.
         return changes
     except Exception:
         return {"suggested_changes": [], "updated_data": []}
-
 
 def nl_to_rule(
     gpt_agent: GPTAgent,
@@ -774,7 +768,7 @@ class DataManager:
             print(f"Warning: AI features disabled due to initialization error: {e}")
             self.gpt_agent = None
         
-        self.validator = FAISSSearcher(mode="rows")
+        self.validator = AIDataValidator(self.gpt_agent)
 
         self.clients: List[Dict[str, Any]] = []
         self.workers: List[Dict[str, Any]] = []
@@ -850,6 +844,38 @@ class DataManager:
     def validate_all(self) -> List[ValidationError]:
         combined = self.clients + self.workers + self.tasks
         return self.validator.validate_data(combined)
+
+    def _validate_single_entry(self, entry: Dict[str, Any]) -> bool:
+        """Validate a single data entry using AI if available"""
+        if not self.gpt_agent:
+            # Basic validation without AI
+            return len(entry) > 0 and any(key in entry for key in ["ClientID", "WorkerID", "TaskID"])
+        
+        # Use AI for more sophisticated validation
+        try:
+            validation_prompt = f"""
+            Validate this data entry for correctness and completeness:
+            
+            Entry: {json.dumps(entry, indent=2)}
+            
+            Check for:
+            1. Required fields based on entry type (Client/Worker/Task)
+            2. Valid data types and formats
+            3. Logical consistency
+            
+            Return only "VALID" or "INVALID" with a brief reason.
+            """
+            
+            result = self.gpt_agent.chat_completion(
+                system_prompt="You are a data validation expert. Be concise.",
+                user_prompt=validation_prompt
+            )
+            
+            return "VALID" in result.upper()
+            
+        except Exception as e:
+            print(f"AI validation error: {e}")
+            return True  # Default to valid if AI fails
 
     def natural_language_search(self, query: str) -> Dict[str, Any]:        
         # Check if data is actually loaded
@@ -1203,65 +1229,33 @@ class DataManager:
         # If any required skills are missing, add them to the first worker
         missing_skills = final_required_skills - final_available_skills
         if missing_skills and self.workers:
-            first_worker = self.workers[0]
-            current_skills = first_worker.get("Skills", "")
-            if current_skills:
-                first_worker["Skills"] = current_skills + "," + ",".join(missing_skills)
-            else:
-                first_worker["Skills"] = ",".join(missing_skills)
-            fixes_applied.append(f"Added missing skills {missing_skills} to worker {first_worker.get('WorkerID')} to ensure coverage")
+            for worker in self.workers:
+                if "WorkerID" in worker:
+                    worker_id = worker["WorkerID"]
+                    # Add missing skills to this worker
+                    current_skills = worker.get("Skills", "")
+                    if isinstance(current_skills, str):
+                        current_skills_set = set(s.strip() for s in current_skills.split(",") if s.strip())
+                    else:
+                        current_skills_set = set()
+                    
+                    # Add only the missing skills
+                    skills_to_add = missing_skills - current_skills_set
+                    if skills_to_add:
+                        new_skills = list(current_skills_set.union(skills_to_add))
+                        worker["Skills"] = ",".join(new_skills)
+                        fixes_applied.append(f"Added missing skills to worker {worker_id}: {skills_to_add}")
+        
+        # Summary of fixes applied
+        print(f"Applied {len(fixes_applied)} automatic fixes:")
+        for fix in fixes_applied:
+            print(f" - {fix}")
         
         return {
-            "fixes_applied": fixes_applied,
-            "summary": {
-                "clients_removed": original_clients - len(self.clients),
-                "workers_removed": original_workers - len(self.workers),
-                "tasks_removed": original_tasks - len(self.tasks),
-                "total_fixes": len(fixes_applied)
-            }
-        }
-
-    def apply_rules_to_data(self, rules: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Apply a set of rules to the loaded data and modify it accordingly"""
-        applied_results = []
-        
-        for rule in rules:
-            rule_type = rule.get("type", "").lower()
-            rule_id = rule.get("id", "unknown")
-            
-            try:
-                if rule_type == "priorityrule":
-                    result = self._apply_priority_rule(rule)
-                elif rule_type == "loadlimit":
-                    result = self._apply_load_limit_rule(rule)
-                elif rule_type == "corun":
-                    result = self._apply_corun_rule(rule)
-                elif rule_type == "phasewindow":
-                    result = self._apply_phase_window_rule(rule)
-                elif rule_type == "slotrestriction":
-                    result = self._apply_slot_restriction_rule(rule)
-                elif rule_type == "patternmatch":
-                    result = self._apply_pattern_match_rule(rule)
-                else:
-                    result = {"applied": False, "reason": f"Unknown rule type: {rule_type}"}
-                
-                applied_results.append({
-                    "rule_id": rule_id,
-                    "rule_type": rule_type,
-                    "result": result
-                })
-                
-            except Exception as e:
-                applied_results.append({
-                    "rule_id": rule_id,
-                    "rule_type": rule_type,
-                    "result": {"applied": False, "reason": f"Error applying rule: {str(e)}"}
-                })
-        
-        return {
-            "total_rules": len(rules),
-            "applied_count": sum(1 for r in applied_results if r["result"].get("applied", False)),
-            "results": applied_results
+            "clients_removed": original_clients - len(self.clients),
+            "workers_removed": original_workers - len(self.workers),
+            "tasks_removed": original_tasks - len(self.tasks),
+            "fixes_applied": fixes_applied
         }
     
     def _apply_priority_rule(self, rule: Dict[str, Any]) -> Dict[str, Any]:

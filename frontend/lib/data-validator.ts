@@ -1,163 +1,255 @@
-export interface ValidationError {
-  file?: string;
-  row?: number;
-  column?: string;
-  error: string;
-  severity: 'error' | 'warning' | 'info';
-  error_type?: string;
-}
-
-export interface ValidationResult<T> {
-  validData: T[];
-  errors: ValidationError[];
-}
+import type { ValidationError, ClientData, WorkerData, TaskData } from "./types"
 
 export class DataValidator {
-  static validateClients(data: any[], filename: string): ValidationResult<any> {
-    const validData: any[] = [];
-    const errors: ValidationError[] = [];
+  private static emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  private static durationRegex = /^(\d+)\s*(day|days|week|weeks|month|months|hour|hours)$/i
+
+  static validateClients(
+    data: any[],
+    filename: string,
+  ): {
+    validData: ClientData[]
+    errors: ValidationError[]
+  } {
+    const errors: ValidationError[] = []
+    const validData: ClientData[] = []
+    const requiredFields = ["clientid", "name", "priority"]
+
+    // Check for missing columns
+    const headers = Object.keys(data[0] || {})
+    const missingFields = requiredFields.filter((field) => !headers.includes(field))
+
+    missingFields.forEach((field) => {
+      errors.push({
+        file: filename,
+        row: 0,
+        column: field,
+        error: `Missing required column: ${field}`,
+        severity: "error",
+      })
+    })
 
     data.forEach((row, index) => {
-      try {
-        // Basic client validation
-        if (!row.ClientID && !row.clientid && !row.id) {
+      const rowNumber = index + 2 // Account for header row
+      let hasErrors = false
+
+      // Validate required fields
+      requiredFields.forEach((field) => {
+        if (!row[field] || row[field].toString().trim() === "") {
           errors.push({
             file: filename,
-            row: index + 1,
-            column: 'ClientID',
-            error: 'Missing client ID',
-            severity: 'error',
-            error_type: 'missing_required_field'
-          });
-          return;
+            row: rowNumber,
+            column: field,
+            error: `${field} is required`,
+            severity: "error",
+            suggestion: `Please provide a value for ${field}`,
+          })
+          hasErrors = true
         }
+      })
 
-        if (!row.ClientName && !row.name && !row.clientname) {
-          errors.push({
-            file: filename,
-            row: index + 1,
-            column: 'ClientName',
-            error: 'Missing client name',
-            severity: 'error',
-            error_type: 'missing_required_field'
-          });
-          return;
-        }
-
-        validData.push(row);
-      } catch (error) {
+      // Validate email format
+      if (row.email && !this.emailRegex.test(row.email)) {
         errors.push({
           file: filename,
-          row: index + 1,
-          column: 'general',
-          error: `Validation error: ${error}`,
-          severity: 'error',
-          error_type: 'validation_error'
-        });
+          row: rowNumber,
+          column: "email",
+          error: "Invalid email format",
+          severity: "warning",
+          suggestion: "Please provide a valid email address",
+        })
       }
-    });
 
-    return { validData, errors };
+      // Validate priority values
+      const validPriorities = ["high", "medium", "low"]
+      if (row.priority && !validPriorities.includes(row.priority.toLowerCase())) {
+        errors.push({
+          file: filename,
+          row: rowNumber,
+          column: "priority",
+          error: "Invalid priority value",
+          severity: "warning",
+          suggestion: "Priority must be High, Medium, or Low",
+        })
+      }
+
+      if (!hasErrors) {
+        validData.push({
+          clientId: row.clientid,
+          name: row.name,
+          email: row.email,
+          priority: row.priority,
+          requestedTaskIds: row.requestedtaskids ? row.requestedtaskids.split(",").map((id: string) => id.trim()) : [],
+        })
+      }
+    })
+
+    return { validData, errors }
   }
 
-  static validateWorkers(data: any[], filename: string): ValidationResult<any> {
-    const validData: any[] = [];
-    const errors: ValidationError[] = [];
+  static validateWorkers(
+    data: any[],
+    filename: string,
+  ): {
+    validData: WorkerData[]
+    errors: ValidationError[]
+  } {
+    const errors: ValidationError[] = []
+    const validData: WorkerData[] = []
+    const requiredFields = ["workerid", "name"]
+
+    // Check for missing columns
+    const headers = Object.keys(data[0] || {})
+    const missingFields = requiredFields.filter((field) => !headers.includes(field))
+
+    missingFields.forEach((field) => {
+      errors.push({
+        file: filename,
+        row: 0,
+        column: field,
+        error: `Missing required column: ${field}`,
+        severity: "error",
+      })
+    })
 
     data.forEach((row, index) => {
-      try {
-        if (!row.WorkerID && !row.workerid && !row.id) {
+      const rowNumber = index + 2
+      let hasErrors = false
+
+      // Validate required fields
+      requiredFields.forEach((field) => {
+        if (!row[field] || row[field].toString().trim() === "") {
           errors.push({
             file: filename,
-            row: index + 1,
-            column: 'WorkerID',
-            error: 'Missing worker ID',
-            severity: 'error',
-            error_type: 'missing_required_field'
-          });
-          return;
+            row: rowNumber,
+            column: field,
+            error: `${field} is required`,
+            severity: "error",
+            suggestion: `Please provide a value for ${field}`,
+          })
+          hasErrors = true
         }
+      })
 
-        if (!row.WorkerName && !row.name && !row.workername) {
-          errors.push({
-            file: filename,
-            row: index + 1,
-            column: 'WorkerName',
-            error: 'Missing worker name',
-            severity: 'error',
-            error_type: 'missing_required_field'
-          });
-          return;
-        }
-
-        validData.push(row);
-      } catch (error) {
+      // Validate availability format
+      if (row.availability && !/^\d+h\/week$/.test(row.availability)) {
         errors.push({
           file: filename,
-          row: index + 1,
-          column: 'general',
-          error: `Validation error: ${error}`,
-          severity: 'error',
-          error_type: 'validation_error'
-        });
+          row: rowNumber,
+          column: "availability",
+          error: "Invalid availability format",
+          severity: "warning",
+          suggestion: 'Format should be like "40h/week"',
+        })
       }
-    });
 
-    return { validData, errors };
+      if (!hasErrors) {
+        validData.push({
+          workerId: row.workerid,
+          name: row.name,
+          skills: row.skills.split(",").map((skill: string) => skill.trim()),
+          availability: row.availability,
+          maxLoad: row.maxload ? Number.parseInt(row.maxload) : undefined,
+        })
+      }
+    })
+
+    return { validData, errors }
   }
 
-  static validateTasks(data: any[], filename: string): ValidationResult<any> {
-    const validData: any[] = [];
-    const errors: ValidationError[] = [];
+  static validateTasks(
+    data: any[],
+    filename: string,
+  ): {
+    validData: TaskData[]
+    errors: ValidationError[]
+  } {
+    const errors: ValidationError[] = []
+    const validData: TaskData[] = []
+    const requiredFields = ["taskid", "title"]
+
+    // Check for missing columns
+    const headers = Object.keys(data[0] || {})
+    const missingFields = requiredFields.filter((field) => !headers.includes(field))
+
+    missingFields.forEach((field) => {
+      errors.push({
+        file: filename,
+        row: 0,
+        column: field,
+        error: `Missing required column: ${field}`,
+        severity: "error",
+      })
+    })
 
     data.forEach((row, index) => {
-      try {
-        if (!row.TaskID && !row.taskid && !row.id) {
+      const rowNumber = index + 2
+      let hasErrors = false
+
+      // Validate required fields
+      requiredFields.forEach((field) => {
+        if (!row[field] || row[field].toString().trim() === "") {
           errors.push({
             file: filename,
-            row: index + 1,
-            column: 'TaskID',
-            error: 'Missing task ID',
-            severity: 'error',
-            error_type: 'missing_required_field'
-          });
-          return;
+            row: rowNumber,
+            column: field,
+            error: `${field} is required`,
+            severity: "error",
+            suggestion: `Please provide a value for ${field}`,
+          })
+          hasErrors = true
         }
+      })
 
-        if (!row.TaskName && !row.name && !row.taskname) {
-          errors.push({
-            file: filename,
-            row: index + 1,
-            column: 'TaskName',
-            error: 'Missing task name',
-            severity: 'error',
-            error_type: 'missing_required_field'
-          });
-          return;
-        }
-
-        validData.push(row);
-      } catch (error) {
+      // Validate duration format
+      if (row.duration && !this.durationRegex.test(row.duration)) {
         errors.push({
           file: filename,
-          row: index + 1,
-          column: 'general',
-          error: `Validation error: ${error}`,
-          severity: 'error',
-          error_type: 'validation_error'
-        });
+          row: rowNumber,
+          column: "duration",
+          error: "Invalid duration format",
+          severity: "warning",
+          suggestion: 'Format should be like "2 weeks" or "5 days"',
+        })
       }
-    });
 
-    return { validData, errors };
+      if (!hasErrors) {
+        validData.push({
+          taskId: row.taskid,
+          title: row.title,
+          duration: row.duration,
+          phase: row.phase,
+          requiredSkills: row.requiredskills ? row.requiredskills.split(",").map((skill: string) => skill.trim()) : [],
+          priority: row.priority ? Number.parseInt(row.priority) : undefined,
+        })
+      }
+    })
+
+    return { validData, errors }
   }
 
-  static validateCrossReferences(clients: any[], workers: any[], tasks: any[]): ValidationError[] {
-    const errors: ValidationError[] = [];
+  static validateCrossReferences(clients: ClientData[], workers: WorkerData[], tasks: TaskData[]): ValidationError[] {
+    const errors: ValidationError[] = []
+    const taskIds = new Set(tasks.map((t) => t.taskId))
 
-    // Add cross-reference validation logic here
-    // For now, return empty array
-    
-    return errors;
+    // Check if requested task IDs exist
+    clients.forEach((client, index) => {
+      if (client.requestedTaskIds) {
+        client.requestedTaskIds.forEach((taskId) => {
+          if (!taskIds.has(taskId)) {
+            errors.push({
+              file: "clients.csv",
+              row: index + 2,
+              column: "requestedTaskIds",
+              error: `Referenced task ID "${taskId}" does not exist`,
+              severity: "error",
+              suggestion: "Ensure all referenced task IDs exist in tasks.csv",
+            })
+          }
+        })
+      }
+    })
+
+    return errors
   }
 }

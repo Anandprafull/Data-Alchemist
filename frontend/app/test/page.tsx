@@ -14,7 +14,9 @@ export default function TestPage() {
 
     // Test 1: Basic connection to FastAPI
     try {
-      const response = await fetch("http://localhost:8000/docs");
+      const response = await fetch(
+        "https://data-alchemist-production.up.railway.app//docs"
+      );
       results.push({
         test: "FastAPI Docs Access",
         status: response.ok ? "✅ SUCCESS" : "❌ FAILED",
@@ -35,10 +37,13 @@ export default function TestPage() {
       const formData = new FormData();
       formData.append("query", "test query");
 
-      const response = await fetch("http://localhost:8000/nl_search", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://data-alchemist-production.up.railway.app//nl_search",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       const result = await response.json();
       results.push({
@@ -59,7 +64,7 @@ export default function TestPage() {
     // Test 3: AI Rule Recommendations endpoint
     try {
       const response = await fetch(
-        "http://localhost:8000/ai_rule_recommendations",
+        "https://data-alchemist-production.up.railway.app//ai_rule_recommendations",
         {
           method: "GET",
         }
@@ -84,7 +89,7 @@ export default function TestPage() {
     // Test 4: Suggest Corrections endpoint
     try {
       const response = await fetch(
-        "http://localhost:8000/suggest_corrections",
+        "https://data-alchemist-production.up.railway.app//suggest_corrections",
         {
           method: "GET",
         }
@@ -158,7 +163,7 @@ export default function TestPage() {
           <ol className="list-decimal list-inside space-y-2 text-sm">
             <li>
               Make sure your FastAPI server is running at{" "}
-              <code>http://localhost:8000</code>
+              <code>https://data-alchemist-production.up.railway.app/</code>
             </li>
             <li>Click the "Test Backend Connection" button above</li>
             <li>Check the results to see which endpoints are working</li>

@@ -73,10 +73,13 @@ export default function Dashboard() {
       const formData = new FormData();
       formData.append("query", query);
 
-      const response = await fetch("http://localhost:8000/nl_search", {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        "https://data-alchemist-production.up.railway.app//nl_search",
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
 
       if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
@@ -105,9 +108,12 @@ export default function Dashboard() {
     try {
       console.log("� Sending request to /apply_corrections...");
 
-      const response = await fetch("http://localhost:8000/apply_corrections", {
-        method: "POST",
-      });
+      const response = await fetch(
+        "https://data-alchemist-production.up.railway.app//apply_corrections",
+        {
+          method: "POST",
+        }
+      );
 
       console.log("📥 Response status:", response.status, response.statusText);
 
